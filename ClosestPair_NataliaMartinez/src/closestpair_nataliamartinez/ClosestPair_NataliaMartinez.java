@@ -20,6 +20,8 @@ import java.util.Scanner;
 public class ClosestPair_NataliaMartinez{
     
     public static ArrayList<Coordinate> coordinates = new ArrayList<>();
+    public static ArrayList<Pair> pairsMinDistance = new ArrayList<>();
+    
     
     public static void main(String[] args){
         int numberC;
@@ -29,7 +31,39 @@ public class ClosestPair_NataliaMartinez{
         GenerateCoordinates(numberC);
         sortArray();
         double dmin=1000000;
-        closestRecursive(null,0,0,coordinates.size(),dmin);
+        dmin = closestRecursive(coordinates,dmin);
+        Pair pair = CoorMinDistance(dmin,pairsMinDistance.size());
+        System.out.print("Las coordenadas "+pair.getCoor1().getName()+" y "+pair.getCoor2().getName()+" tienen la distancia mínima.");
+        System.out.println(" ");
+        System.out.println("Distancia mínima: "+dmin);
+    }
+    
+    //ArrayList operations
+    
+    public static void sortArray(){
+        //Sorts array in ascending order (x value)
+        Collections.sort(coordinates,new Comparator<Coordinate>(){
+            public int compare(Coordinate x1, Coordinate x2){
+                return Integer.valueOf(x1.getX()).compareTo(x2.getX());
+            }   
+        });
+    }
+    public static ArrayList subArray(ArrayList coordinates, int start, int end){
+        ArrayList<Coordinate> coordinatesX = new ArrayList<>();
+        int j = 0;
+        for (int i = start; i<end;i++){
+            coordinatesX.add(j, (Coordinate) coordinates.get(i));
+            j++;
+        }
+        return coordinatesX;    
+    }
+    
+    //Coordinates Operations
+    
+    public static void printCoordinates(){
+         for (Coordinate c : coordinates) {
+           System.out.println("Coordinate "+c.getName()+": "+c.getX()+" "+c.getY());
+         }
     }
     
     //Method that generates the coordinates (x,y)
@@ -45,64 +79,59 @@ public class ClosestPair_NataliaMartinez{
         printCoordinates();
     }
     
-    public static void printCoordinates(){
-         for (Coordinate c : coordinates) {
-           System.out.println("Coordinate "+c.getName()+": "+c.getX()+" "+c.getY());
-         }
-    }
-    
-    public static double closestRecursive(Coordinate mid,int startIndex, int midIndex, int endIndex,double dmin){
-        int n = endIndex-startIndex;
-        if (n<=3){
-            dmin = bruteForce(n,dmin);
-        }else{
-            midIndex = (startIndex+n)/2;
-            mid = coordinates.get(midIndex);
-            double dLeft = closestRecursive(mid,startIndex,midIndex,endIndex,dmin);
-            double dRight = closestRecursive(mid,midIndex,midIndex,endIndex,dmin);
-            double d = Math.min(dLeft, dRight);
-            Coordinate[] strip = new Coordinate[coordinates.size()];
-            int j = 0;
-            
-            //Coordenadas dentro la distancia D
-            for (int i = 0; i < coordinates.size(); i++) {
-                if (Math.abs(coordinates.get(i).getX() - mid.getX()) < d) {
-                    strip[j] = coordinates.get(i);
-                    j++;
-                }
-            }
-  
-        }
-        System.out.println("La distancia mínima es: "+dmin);
-        return dmin;
-    }
     public static double bruteForce(int numberC,double dmin){ 
-        int c1 = 0;
-        int c2 = 0;
         for (int i = 0; i<numberC;i++){
            for (int j = i+1; j<numberC;j++){
                System.out.println(distance(coordinates.get(i), coordinates.get(j)));
-               if (distance(coordinates.get(i), coordinates.get(j))<dmin){
-                   c1 = i;
-                   c2 = j;
+               if (distance(coordinates.get(i), coordinates.get(j))<dmin && !coordinates.get(i).name.equals(coordinates.get(j).name) ){
                    dmin = distance(coordinates.get(i), coordinates.get(j));
+                   Pair pair = new Pair(coordinates.get(i),coordinates.get(j),dmin);
+                   pairsMinDistance.add(pair);
                }
            } 
         }
-        System.out.println("Punto "+coordinates.get(c1).name + " y " + "Punto "+coordinates.get(c2).name+" tienen la distancia mínima.");
         return dmin;
     }
+    
+    public static double closestRecursive(ArrayList coordinates,double dmin){
+        int n = coordinates.size();
+        if (n<=3){
+            dmin = bruteForce(n,dmin);
+        }else{
+            int mid = n/2;
+            Coordinate Cmid = (Coordinate) coordinates.get(mid);
+            double dl = closestRecursive(subArray(coordinates,0,mid),dmin);
+            double dr = closestRecursive(subArray(coordinates,mid+1,n),dmin);     
+            dmin = Math.min(dl,dr);
+            System.out.println("hola  "+  dmin);
+            ArrayList<Coordinate> strip = new ArrayList<>();
+
+            //Coordenadas dentro la distancia D
+            for (int i = 0; i < n; i++) {
+                Coordinate C = (Coordinate) coordinates.get(i);
+                if (Math.abs(C.getX() - Cmid.getX()) < dmin) {
+                    strip.add((Coordinate) coordinates.get(i));
+                }
+            }
+            
+        }
+        return Math.min(dmin, bruteForce(n,dmin));
+    }
+    
+    public static Pair CoorMinDistance(Double dminTemp,Integer n){
+        for (int i = 0; i<n;i++){
+            if (pairsMinDistance.get(i).getDistance() == dminTemp){
+                return pairsMinDistance.get(i);
+            }
+        }
+        return null;
+    }
+    
+    
     public static double distance(Coordinate i,Coordinate j){
         return Math.sqrt(Math.pow(i.getX()-j.getX(),2)+Math.pow(i.getY()-j.getY(),2));
     }
-    public static void sortArray(){
-        //Sorts array in ascending order (x value)
-        Collections.sort(coordinates,new Comparator<Coordinate>(){
-            public int compare(Coordinate x1, Coordinate x2){
-                return Integer.valueOf(x1.getX()).compareTo(x2.getX());
-            }   
-        });
-    }
+    
 }
 
 class Coordinate {
@@ -127,4 +156,29 @@ class Coordinate {
     public int getY() {
         return y;
     }
+}
+
+class Pair{
+    Coordinate Coor1;
+    Coordinate Coor2;
+    double distance;
+    
+    public Pair(Coordinate Coor1,Coordinate Coor2, Double distance) {
+        this.Coor1 = Coor1;
+        this.Coor2 = Coor2;
+        this.distance = distance;
+    }
+
+    public Coordinate getCoor1() {
+        return Coor1;
+    }
+
+    public Coordinate getCoor2() {
+        return Coor2;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+    
 }
