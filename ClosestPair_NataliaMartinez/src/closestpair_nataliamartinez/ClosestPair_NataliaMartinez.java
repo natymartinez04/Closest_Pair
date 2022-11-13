@@ -19,118 +19,72 @@ import java.util.Scanner;
  */
 public class ClosestPair_NataliaMartinez{
     
-    public static ArrayList<Coordinate> coordinates = new ArrayList<>();
-    public static ArrayList<Pair> pairsMinDistance = new ArrayList<>();
-    
-    
+
     public static void main(String[] args){
         int numberC;
         Scanner leer = new Scanner(System.in);
         System.out.println("Amount of coordinates:");
         numberC = leer.nextInt();
-        GenerateCoordinates(numberC);
-        sortArray();
-        double dmin=1000000;
-        dmin = closestRecursive(coordinates,dmin);
-        Pair pair = CoorMinDistance(dmin,pairsMinDistance.size());
-        System.out.print("Las coordenadas "+pair.getCoor1().getName()+" y "+pair.getCoor2().getName()+" tienen la distancia mínima.");
-        System.out.println(" ");
-        System.out.println("Distancia mínima: "+dmin);
+        ArrayList<Coordinate> coordinates = new ArrayList();
+        coordinates = GenerateCoordinates(coordinates,numberC);
+        coordinates = sortArray(coordinates);
+        
+        System.out.println("By brute force: ");
+        Brute brute = new Brute();
+        double dmin = brute.bruteForce(coordinates, 100000000);
+        System.out.println(dmin);
+        System.out.println("Divide and Conquer: ");
+        dmin = brute.closestRecursive(coordinates,10000000);
+        System.out.println(dmin);
     }
     
     //ArrayList operations
     
-    public static void sortArray(){
+    public static ArrayList<Coordinate> sortArray(ArrayList<Coordinate> coordinates){
         //Sorts array in ascending order (x value)
         Collections.sort(coordinates,new Comparator<Coordinate>(){
             public int compare(Coordinate x1, Coordinate x2){
                 return Integer.valueOf(x1.getX()).compareTo(x2.getX());
             }   
         });
+        return coordinates;
     }
-    public static ArrayList subArray(ArrayList coordinates, int start, int end){
-        ArrayList<Coordinate> coordinatesX = new ArrayList<>();
-        int j = 0;
-        for (int i = start; i<end;i++){
-            coordinatesX.add(j, (Coordinate) coordinates.get(i));
-            j++;
+    
+    public static void printArray(ArrayList<Coordinate> coordinates){
+        for (int i = 0; i<coordinates.size(); i++){
+            System.out.println(coordinates.get(i));
+            
         }
-        return coordinatesX;    
+        System.out.println("done");
     }
     
     //Coordinates Operations
     
-    public static void printCoordinates(){
+    public static void printCoordinates(ArrayList<Coordinate> coordinates){
          for (Coordinate c : coordinates) {
            System.out.println("Coordinate "+c.getName()+": "+c.getX()+" "+c.getY());
          }
     }
     
+        
     //Method that generates the coordinates (x,y)
-    public static void GenerateCoordinates(int numberC){
+    public static ArrayList<Coordinate> GenerateCoordinates(ArrayList<Coordinate> coordinates,int numberC){
         int x;
         int y;
         Random random = new Random();
         for (int i = 0; i<numberC;i++){
-            x = random.nextInt(10);
-            y = random.nextInt(10);
+            x = random.nextInt(1000);
+            y = random.nextInt(1000);
             coordinates.add(new Coordinate(Integer.toString(i),x,y)); 
-        }
-        printCoordinates();
-    }
-    
-    public static double bruteForce(int numberC,double dmin){ 
-        for (int i = 0; i<numberC;i++){
-           for (int j = i+1; j<numberC;j++){
-               System.out.println(distance(coordinates.get(i), coordinates.get(j)));
-               if (distance(coordinates.get(i), coordinates.get(j))<dmin && !coordinates.get(i).name.equals(coordinates.get(j).name) ){
-                   dmin = distance(coordinates.get(i), coordinates.get(j));
-                   Pair pair = new Pair(coordinates.get(i),coordinates.get(j),dmin);
-                   pairsMinDistance.add(pair);
-               }
-           } 
-        }
-        return dmin;
-    }
-    
-    public static double closestRecursive(ArrayList coordinates,double dmin){
-        int n = coordinates.size();
-        if (n<=3){
-            dmin = bruteForce(n,dmin);
-        }else{
-            int mid = n/2;
-            Coordinate Cmid = (Coordinate) coordinates.get(mid);
-            double dl = closestRecursive(subArray(coordinates,0,mid),dmin);
-            double dr = closestRecursive(subArray(coordinates,mid+1,n),dmin);     
-            dmin = Math.min(dl,dr);
-            System.out.println("hola  "+  dmin);
-            ArrayList<Coordinate> strip = new ArrayList<>();
-
-            //Coordenadas dentro la distancia D
-            for (int i = 0; i < n; i++) {
-                Coordinate C = (Coordinate) coordinates.get(i);
-                if (Math.abs(C.getX() - Cmid.getX()) < dmin) {
-                    strip.add((Coordinate) coordinates.get(i));
-                }
-            }
-            
-        }
-        return Math.min(dmin, bruteForce(n,dmin));
-    }
-    
-    public static Pair CoorMinDistance(Double dminTemp,Integer n){
-        for (int i = 0; i<n;i++){
-            if (pairsMinDistance.get(i).getDistance() == dminTemp){
-                return pairsMinDistance.get(i);
-            }
-        }
-        return null;
+        } 
+        return coordinates;
     }
     
     
-    public static double distance(Coordinate i,Coordinate j){
-        return Math.sqrt(Math.pow(i.getX()-j.getX(),2)+Math.pow(i.getY()-j.getY(),2));
-    }
+    
+    
+    
+    
     
 }
 
@@ -158,6 +112,7 @@ class Coordinate {
     }
 }
 
+
 class Pair{
     Coordinate Coor1;
     Coordinate Coor2;
@@ -182,3 +137,4 @@ class Pair{
     }
     
 }
+
