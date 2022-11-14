@@ -9,7 +9,6 @@ package closestpair_nataliamartinez;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -28,6 +27,7 @@ public class ClosestPair_NataliaMartinez{
         ArrayList<Coordinate> coordinates = new ArrayList();
         coordinates = GenerateCoordinates(coordinates,numberC);
         coordinates = sortArray(coordinates);
+        printCoordinates(coordinates);
         
         System.out.println("By brute force: ");
         Brute brute = new Brute();
@@ -50,13 +50,7 @@ public class ClosestPair_NataliaMartinez{
         return coordinates;
     }
     
-    public static void printArray(ArrayList<Coordinate> coordinates){
-        for (int i = 0; i<coordinates.size(); i++){
-            System.out.println(coordinates.get(i));
-            
-        }
-        System.out.println("done");
-    }
+  
     
     //Coordinates Operations
     
@@ -78,12 +72,7 @@ public class ClosestPair_NataliaMartinez{
             coordinates.add(new Coordinate(Integer.toString(i),x,y)); 
         } 
         return coordinates;
-    }
-    
-    
-    
-    
-    
+    } 
     
     
 }
@@ -112,29 +101,4 @@ class Coordinate {
     }
 }
 
-
-class Pair{
-    Coordinate Coor1;
-    Coordinate Coor2;
-    double distance;
-    
-    public Pair(Coordinate Coor1,Coordinate Coor2, Double distance) {
-        this.Coor1 = Coor1;
-        this.Coor2 = Coor2;
-        this.distance = distance;
-    }
-
-    public Coordinate getCoor1() {
-        return Coor1;
-    }
-
-    public Coordinate getCoor2() {
-        return Coor2;
-    }
-
-    public double getDistance() {
-        return distance;
-    }
-    
-}
 
