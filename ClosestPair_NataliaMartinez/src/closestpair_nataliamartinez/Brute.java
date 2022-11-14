@@ -24,8 +24,7 @@ public class Brute {
                   if (distance(coordinates.get(i), coordinates.get(j))<dmin){
                     dmin = distance(coordinates.get(i), coordinates.get(j));
                   } 
-               }
-               
+               } 
             } 
         }
         return dmin;
@@ -42,19 +41,21 @@ public class Brute {
             double dr = closestRecursive(subArray(coordinates,mid,n),dmin);     
             dmin = Math.min(dl,dr);
             ArrayList<Coordinate> strip = new ArrayList<>();
-            //Coordenadas dentro la distancia D
-            for (int i = 0; i < n; i++) {
-                Coordinate C = (Coordinate) coordinates.get(i);
-                if (Math.abs(C.getX() - Cmid.getX()) < dmin) {
-                    strip.add((Coordinate) coordinates.get(i));
-                }
-            }
-            coordinates = strip;
-   
+            coordinates = Strip(strip,coordinates,Cmid,0,dmin);
         }
         return Math.min(dmin, bruteForce(coordinates,dmin));
     }
-    
+
+
+    public ArrayList<Coordinate> Strip(ArrayList<Coordinate> strip,ArrayList<Coordinate> coordinates,Coordinate Cmid,int i,double dmin){
+        if (i<coordinates.size()){
+            if (Math.abs(coordinates.get(i).getX() - Cmid.getX()) < dmin) {
+                strip.add((Coordinate) coordinates.get(i));
+            }
+            Strip(strip,coordinates,Cmid,i+1,dmin);
+        }
+        return strip;
+    }
     public ArrayList<Coordinate> subArray(ArrayList<Coordinate> coordinates, int start, int end){
         ArrayList<Coordinate> coordinatesX = new ArrayList<>();
         int j = 0;
@@ -69,7 +70,9 @@ public class Brute {
         return Math.sqrt(Math.pow(i.getX()-j.getX(),2)+Math.pow(i.getY()-j.getY(),2));
     }
 
-  
 
-   
+
+    
+
 }
+
