@@ -15,23 +15,50 @@ import java.util.ArrayList;
  */
 public class Brute {
 
+    Coordinate coordinate1 = new Coordinate(null,0,0);
+    Coordinate coordinate2 = new Coordinate(null,0,0);
+    long comparaciones = 0;
+    
+    public Coordinate getCoordinate1() {
+        return coordinate1;
+    }
+
+    public Coordinate getCoordinate2() {
+        return coordinate2;
+    }
+    
+    public long getComparasiones() {
+        return comparaciones;
+    }
+
+    public void setComparaciones(long comparaciones) {
+        this.comparaciones = comparaciones;
+    }
+    
+    
     
     public double bruteForce(ArrayList<Coordinate> coordinates,double dmin){ 
         int n = coordinates.size();
         for (int i = 0; i<n;i++){
            for (int j = 0; j<n;j++){
                if (i!=j){
-                  if (distance(coordinates.get(i), coordinates.get(j))<dmin){
+                  if (distance(coordinates.get(i), coordinates.get(j))<=dmin){
                     dmin = distance(coordinates.get(i), coordinates.get(j));
-                  } 
+                    coordinate1 = coordinates.get(i);
+                    coordinate2 = coordinates.get(j);
+                  }
                } 
+               comparaciones++;
             } 
         }
+        
         return dmin;
     }
+   
     
     public double closestRecursive(ArrayList<Coordinate> coordinates,double dmin){
         int n = coordinates.size();
+        comparaciones++;
         if (n<=3){
             dmin = bruteForce(coordinates,dmin);
         }else{
@@ -43,16 +70,21 @@ public class Brute {
             ArrayList<Coordinate> strip = new ArrayList<>();
             coordinates = Strip(strip,coordinates,Cmid,0,dmin);
         }
-        return Math.min(dmin, bruteForce(coordinates,dmin));
+        if (Math.min(dmin, bruteForce(coordinates,dmin))==dmin){
+            return dmin;
+        }else{
+           return bruteForce(coordinates,dmin); 
+        }
+        
     }
 
 
     public ArrayList<Coordinate> Strip(ArrayList<Coordinate> strip,ArrayList<Coordinate> coordinates,Coordinate Cmid,int i,double dmin){
-        if (i<coordinates.size()){
+       while (i<coordinates.size()){
             if (Math.abs(coordinates.get(i).getX() - Cmid.getX()) < dmin) {
                 strip.add((Coordinate) coordinates.get(i));
             }
-            Strip(strip,coordinates,Cmid,i+1,dmin);
+            i++;
         }
         return strip;
     }
