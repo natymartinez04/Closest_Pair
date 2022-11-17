@@ -72,7 +72,8 @@ public class Brute {
         return bruteForce(coordinates,dmin); 
     }
 
-
+    
+    //Function that adds to a new array the coordinates that have a distance smaller than the minimun distance found to the mid coordinate
     public ArrayList<Coordinate> Strip(ArrayList<Coordinate> strip,ArrayList<Coordinate> coordinates,Coordinate Cmid,int i,double dmin){
        while (i<coordinates.size()){
             if (Math.abs(coordinates.get(i).getX() - Cmid.getX()) < dmin) {
@@ -82,6 +83,8 @@ public class Brute {
         }
         return strip;
     }
+    
+    
     public ArrayList<Coordinate> subArray(ArrayList<Coordinate> coordinates, int start, int end){
         ArrayList<Coordinate> coordinatesX = new ArrayList<>();
         int j = 0;
@@ -92,35 +95,10 @@ public class Brute {
         return coordinatesX;    
     }
     
+    //Calculates distance between two coordinates
     public double distance(Coordinate i,Coordinate j){
         return Math.sqrt(Math.pow(i.getX()-j.getX(),2)+Math.pow(i.getY()-j.getY(),2));
     }
 
 }
 
-class Pairs {
-    
-    Coordinate coordinate1;
-    Coordinate coordinate2;
-    double minDistance;
-
-    public Pairs(Coordinate coordinate1, Coordinate coordinate2, double minDistance) {
-        this.coordinate1 = coordinate1;
-        this.coordinate2 = coordinate2;
-        this.minDistance = minDistance;
-    }
-
-    public Coordinate getCoordinate1() {
-        return coordinate1;
-    }
-
-    public Coordinate getCoordinate2() {
-        return coordinate2;
-    }
-
-    public double getMinDistance() {
-        return minDistance;
-    }
-
-    
-}
