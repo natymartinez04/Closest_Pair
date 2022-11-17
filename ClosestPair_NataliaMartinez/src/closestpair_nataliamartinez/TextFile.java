@@ -41,7 +41,7 @@ public class TextFile {
     }
     
     public void writeTime(String nombre, Long[] tiempo, Integer iteraciones,Long[] comparaciones){
-            //writes the amount of numbers in the file, the number of comparisons and time into a file.
+            //writes the amount of coordinates, the number of comparisons and time into a file.
             try
 		{
                         create(nombre);
@@ -63,5 +63,4 @@ public class TextFile {
 		return;
     }
 }
-
 
