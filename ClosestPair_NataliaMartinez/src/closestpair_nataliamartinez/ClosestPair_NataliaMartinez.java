@@ -6,15 +6,12 @@
 package closestpair_nataliamartinez;
 
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
-import java.util.Scanner;
+
 
 /**
  *
@@ -60,12 +57,12 @@ public class ClosestPair_NataliaMartinez{
         }
         
         text.writeTime("dataBruteForce.txt",tiemposBrute,iteraciones,comparacionesBrute);
-        text.writeTime("dataDivideAndConquer.txt",tiemposBrute,iteraciones,comparacionesDivide);
+        text.writeTime("dataDivideAndConquer.txt",tiemposDivide,iteraciones,comparacionesDivide);
 
         
     }
     
-    
+    //Method that stores time execution for both cases
     public static Long[] getTime(ArrayList<Coordinate> coordinates,Long[] tiempos,int iteraciones,Brute brute,long endSort,long startSort,boolean sw){
         long start,end;
         double dmin;
@@ -102,6 +99,7 @@ public class ClosestPair_NataliaMartinez{
         return tiempos;
     }
     
+    //Method that finds the corresponding pair of coordinates that have the min distance founded
     public static Pairs findPair(Brute brute,double dmin){
         for (int i = 0;i<brute.pairs.size();i++){
             if (brute.pairs.get(i).getMinDistance() == dmin){
@@ -138,31 +136,6 @@ public class ClosestPair_NataliaMartinez{
         } 
         return coordinates;
     } 
-    
-    
+
 }   
-
-class Coordinate {
-    String name;
-    int x;
-    int y;
-
-    public Coordinate(String name, int x, int y) {
-        this.name = name;
-        this.x = x;
-        this.y = y;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-}
 
