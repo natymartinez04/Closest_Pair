@@ -6,12 +6,12 @@
 package closestpair_nataliamartinez;
 
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
+
 
 /**
  *
@@ -19,166 +19,123 @@ import java.util.Scanner;
  */
 public class ClosestPair_NataliaMartinez{
     
-    public static ArrayList<Coordinate> coordinates = new ArrayList<>();
-    public static ArrayList<Pair> pairsMinDistance = new ArrayList<>();
     
-    
-    public static void main(String[] args){
-        int numberC;
-        Scanner leer = new Scanner(System.in);
-        System.out.println("Amount of coordinates:");
-        numberC = leer.nextInt();
-        GenerateCoordinates(numberC);
-        sortArray();
-        double dmin=1000000;
-        dmin = closestRecursive(coordinates,dmin);
-        Pair pair = CoorMinDistance(dmin,pairsMinDistance.size());
-        System.out.print("Las coordenadas "+pair.getCoor1().getName()+" y "+pair.getCoor2().getName()+" tienen la distancia mínima.");
-        System.out.println(" ");
-        System.out.println("Distancia mínima: "+dmin);
-    }
-    
-    //ArrayList operations
-    
-    public static void sortArray(){
-        //Sorts array in ascending order (x value)
-        Collections.sort(coordinates,new Comparator<Coordinate>(){
-            public int compare(Coordinate x1, Coordinate x2){
-                return Integer.valueOf(x1.getX()).compareTo(x2.getX());
-            }   
-        });
-    }
-    public static ArrayList subArray(ArrayList coordinates, int start, int end){
-        ArrayList<Coordinate> coordinatesX = new ArrayList<>();
-        int j = 0;
-        for (int i = start; i<end;i++){
-            coordinatesX.add(j, (Coordinate) coordinates.get(i));
-            j++;
-        }
-        return coordinatesX;    
-    }
-    
-    //Coordinates Operations
-    
-    public static void printCoordinates(){
-         for (Coordinate c : coordinates) {
-           System.out.println("Coordinate "+c.getName()+": "+c.getX()+" "+c.getY());
-         }
-    }
-    
-    //Method that generates the coordinates (x,y)
-    public static void GenerateCoordinates(int numberC){
-        int x;
-        int y;
-        Random random = new Random();
-        for (int i = 0; i<numberC;i++){
-            x = random.nextInt(10);
-            y = random.nextInt(10);
-            coordinates.add(new Coordinate(Integer.toString(i),x,y)); 
-        }
-        printCoordinates();
-    }
-    
-    public static double bruteForce(int numberC,double dmin){ 
-        for (int i = 0; i<numberC;i++){
-           for (int j = i+1; j<numberC;j++){
-               System.out.println(distance(coordinates.get(i), coordinates.get(j)));
-               if (distance(coordinates.get(i), coordinates.get(j))<dmin && !coordinates.get(i).name.equals(coordinates.get(j).name) ){
-                   dmin = distance(coordinates.get(i), coordinates.get(j));
-                   Pair pair = new Pair(coordinates.get(i),coordinates.get(j),dmin);
-                   pairsMinDistance.add(pair);
-               }
-           } 
-        }
-        return dmin;
-    }
-    
-    public static double closestRecursive(ArrayList coordinates,double dmin){
-        int n = coordinates.size();
-        if (n<=3){
-            dmin = bruteForce(n,dmin);
-        }else{
-            int mid = n/2;
-            Coordinate Cmid = (Coordinate) coordinates.get(mid);
-            double dl = closestRecursive(subArray(coordinates,0,mid),dmin);
-            double dr = closestRecursive(subArray(coordinates,mid+1,n),dmin);     
-            dmin = Math.min(dl,dr);
-            System.out.println("hola  "+  dmin);
-            ArrayList<Coordinate> strip = new ArrayList<>();
 
-            //Coordenadas dentro la distancia D
-            for (int i = 0; i < n; i++) {
-                Coordinate C = (Coordinate) coordinates.get(i);
-                if (Math.abs(C.getX() - Cmid.getX()) < dmin) {
-                    strip.add((Coordinate) coordinates.get(i));
-                }
-            }
+    public static void main(String[] args){
+        
+        long numberC,startSort,endSort;
+        int iteraciones = 0;
+        Long tiemposBrute[] = new Long[16];
+        Long tiemposDivide[] = new Long[16];
+        Long comparacionesBrute[] = new Long[16];
+        Long comparacionesDivide[] = new Long[16];
+        Brute brute = new Brute();
+        ArrayList<Coordinate> coordinates = new ArrayList();
+        TextFile text = new TextFile();
+        
+        while (iteraciones < 16){
+            numberC = (long) Math.pow(2, iteraciones+3);
+            System.out.println("Amount of coordinates:"+numberC);
+            System.out.println(" ");
             
+            coordinates = GenerateCoordinates(coordinates,numberC);
+            startSort = System.nanoTime();
+            coordinates = sortArray(coordinates,brute);
+            endSort = System.nanoTime();
+         
+            
+            tiemposBrute = getTime(coordinates,tiemposBrute,iteraciones,brute,endSort,startSort,false);
+            comparacionesBrute[iteraciones] = brute.getComparasiones();
+            brute.setComparaciones(0);
+            
+            tiemposDivide = getTime(coordinates,tiemposDivide,iteraciones,brute,endSort,startSort,true);
+            comparacionesDivide[iteraciones] = brute.getComparasiones();
+            brute.setComparaciones(0);
+            
+            coordinates.removeAll(coordinates);
+            iteraciones++;
         }
-        return Math.min(dmin, bruteForce(n,dmin));
+        
+        text.writeTime("dataBruteForce.txt",tiemposBrute,iteraciones,comparacionesBrute);
+        text.writeTime("dataDivideAndConquer.txt",tiemposDivide,iteraciones,comparacionesDivide);
+
+        
     }
     
-    public static Pair CoorMinDistance(Double dminTemp,Integer n){
-        for (int i = 0; i<n;i++){
-            if (pairsMinDistance.get(i).getDistance() == dminTemp){
-                return pairsMinDistance.get(i);
+    //Method that stores time execution for both cases
+    public static Long[] getTime(ArrayList<Coordinate> coordinates,Long[] tiempos,int iteraciones,Brute brute,long endSort,long startSort,boolean sw){
+        long start,end;
+        double dmin;
+        if (sw == false){
+            System.out.println("By brute force: ");
+            start = System.nanoTime();
+            dmin = brute.bruteForce(coordinates, 100000000);
+            end = System.nanoTime();
+            tiempos[iteraciones] = end-start + endSort-startSort; 
+            Pairs pair = findPair(brute,dmin);
+            System.out.println("La Coordenada "+pair.coordinate1.getName()+"("+
+                    pair.coordinate1.getX()+","+pair.coordinate1.getY()+")"
+                    +" y "+" la coordenada "+pair.coordinate2.getName()+"("+
+                    pair.coordinate2.getX()+","+pair.coordinate2.getY()+")"
+                    + " tienen la distancia mínima que es igual a:");
+            System.out.println(dmin);
+            System.out.println(" ");
+        }else{
+            System.out.println("Divide and Conquer: ");
+            start = System.nanoTime();
+            dmin = brute.closestRecursive(coordinates,10000000);
+            end = System.nanoTime();
+            tiempos[iteraciones] = end-start + endSort-startSort;
+            Pairs pair = findPair(brute,dmin);
+            System.out.println("La Coordenada "+pair.coordinate1.getName()+"("+
+                    pair.coordinate1.getX()+","+pair.coordinate1.getY()+")"
+                    +" y "+" la coordenada "+pair.coordinate2.getName()+"("+
+                    pair.coordinate2.getX()+","+pair.coordinate2.getY()+")"
+                    + " tienen la distancia mínima que es igual a:");
+            System.out.println(dmin);
+            System.out.println(" ");
+        }
+        brute.getPairs().removeAll(brute.getPairs());
+        return tiempos;
+    }
+    
+    //Method that finds the corresponding pair of coordinates that have the min distance founded
+    public static Pairs findPair(Brute brute,double dmin){
+        for (int i = 0;i<brute.pairs.size();i++){
+            if (brute.pairs.get(i).getMinDistance() == dmin){
+                return brute.pairs.get(i);
             }
         }
         return null;
     }
     
     
-    public static double distance(Coordinate i,Coordinate j){
-        return Math.sqrt(Math.pow(i.getX()-j.getX(),2)+Math.pow(i.getY()-j.getY(),2));
+    //Method that sorts array of coordinates in ascending order (for the x coordinate)
+    public static ArrayList<Coordinate> sortArray(ArrayList<Coordinate> coordinates,Brute brute){
+        //Sorts array in ascending order (x value)
+        Collections.sort(coordinates,new Comparator<Coordinate>(){
+            public int compare(Coordinate x1, Coordinate x2){
+                brute.setComparaciones(brute.comparaciones + 1);
+                return Integer.valueOf(x1.getX()).compareTo(x2.getX());
+                
+            }   
+        });
+        return coordinates;
     }
     
-}
+ 
+    //Method that generates the coordinates (x,y)
+    public static ArrayList<Coordinate> GenerateCoordinates(ArrayList<Coordinate> coordinates,long numberC){
+        int x;
+        int y;
+        Random random = new Random();
+        for (int i = 0; i<numberC;i++){
+            x = random.nextInt((int) Math.pow(5, i));
+            y = random.nextInt(500);
+            coordinates.add(new Coordinate(Integer.toString(i),x,y)); 
+        } 
+        return coordinates;
+    } 
 
-class Coordinate {
-    String name;
-    int x;
-    int y;
+}   
 
-    public Coordinate(String name, int x, int y) {
-        this.name = name;
-        this.x = x;
-        this.y = y;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-}
-
-class Pair{
-    Coordinate Coor1;
-    Coordinate Coor2;
-    double distance;
-    
-    public Pair(Coordinate Coor1,Coordinate Coor2, Double distance) {
-        this.Coor1 = Coor1;
-        this.Coor2 = Coor2;
-        this.distance = distance;
-    }
-
-    public Coordinate getCoor1() {
-        return Coor1;
-    }
-
-    public Coordinate getCoor2() {
-        return Coor2;
-    }
-
-    public double getDistance() {
-        return distance;
-    }
-    
-}
